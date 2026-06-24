@@ -1,5 +1,8 @@
 package com.ahmed.bank_api.controller;
+import com.ahmed.bank_api.dto.CreateAccountRequest;
+import com.ahmed.bank_api.dto.UpdateAccountRequest;
 import com.ahmed.bank_api.model.Account;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import com.ahmed.bank_api.service.AccountService;
@@ -23,8 +26,12 @@ public class AccountController {
     }
 
     @PostMapping("/accounts")
-    public Account addAccount(@RequestBody Account account){
+    public Account addAccount(@Valid @RequestBody CreateAccountRequest request){
+       Account account = new Account();
+       account.setOwnerName(request.getOwnerName());
+       account.setBalance(0);
        return accountService.addAccount(account);
+
 
     }
     @PostMapping("/accounts/{name}/deposit")
@@ -37,7 +44,9 @@ public class AccountController {
     }
 
     @PutMapping("/accounts/{name}")
-    public Account update(@PathVariable String name , @RequestBody Account account){
+    public Account update(@PathVariable String name , @Valid @RequestBody UpdateAccountRequest request){
+        Account account = new Account();
+        account.setOwnerName(request.getOwnerName());
         return accountService.update(name , account);
     }
 

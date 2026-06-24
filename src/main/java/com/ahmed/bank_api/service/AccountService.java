@@ -61,7 +61,7 @@ public class AccountService {
 
     public Account update(String name , Account updatedAccount){
         Account oldAccount = find(name);
-        oldAccount.setBalance(updatedAccount.getBalance());
+
         oldAccount.setOwnerName(updatedAccount.getOwnerName());
 
         return oldAccount;
