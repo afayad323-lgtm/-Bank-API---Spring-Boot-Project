@@ -15,8 +15,10 @@ public class AccountService {
         return accounts;
     }
 
-    public void addAccount(Account account){
-        accounts.add(account);
+    public Account addAccount(Account account){
+          accounts.add(account);
+         return account;
+
     }
 
     public Account find(String name){
@@ -34,6 +36,7 @@ public class AccountService {
       Account acc = find(name);
 
       acc.setBalance(acc.getBalance() + amount);
+
       return acc;
     }
 
@@ -51,7 +54,22 @@ public class AccountService {
             throw new InSufficientAmount("Insufficient balance");
         }
         acc.setBalance(acc.getBalance() - amount);
+
         return acc;
 
+    }
+
+    public Account update(String name , Account updatedAccount){
+        Account oldAccount = find(name);
+        oldAccount.setBalance(updatedAccount.getBalance());
+        oldAccount.setOwnerName(updatedAccount.getOwnerName());
+
+        return oldAccount;
+    }
+    public Account delete(String name ){
+        Account acc = find(name);
+        accounts.remove(acc);
+
+        return acc;
     }
 }

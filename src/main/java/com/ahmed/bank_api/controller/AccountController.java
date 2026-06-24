@@ -23,17 +23,27 @@ public class AccountController {
     }
 
     @PostMapping("/accounts")
-    public String addAccount(@RequestBody Account account){
-        accountService.addAccount(account);
-        return "Account added successfully";
+    public Account addAccount(@RequestBody Account account){
+       return accountService.addAccount(account);
+
     }
-    @PostMapping("/{name}/deposit")
+    @PostMapping("/accounts/{name}/deposit")
     public Account deposit(@PathVariable String name , @RequestParam double amount){
         return accountService.deposit(name , amount);
     }
-    @PostMapping("/{name}/withdraw")
+    @PostMapping("/accounts/{name}/withdraw")
     public Account withdraw(@PathVariable String name , @RequestParam double amount){
         return accountService.withdraw(name , amount);
+    }
+
+    @PutMapping("/accounts/{name}")
+    public Account update(@PathVariable String name , @RequestBody Account account){
+        return accountService.update(name , account);
+    }
+
+    @DeleteMapping("/accounts/{name}")
+    public Account delete(@PathVariable String name){
+        return accountService.delete(name);
     }
 
 
