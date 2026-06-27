@@ -5,49 +5,54 @@ import com.ahmed.bank_api.exception.InValidAmount;
 import com.ahmed.bank_api.model.Account;
 import java.util.List;
 import java.util.ArrayList;
+
+import com.ahmed.bank_api.repository.AccountRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AccountService {
-    private List<Account> accounts = new ArrayList<>();
+  private final AccountRepository accountRepository;
+
+  public AccountService(AccountRepository accountRepository){
+      this.accountRepository =accountRepository;
+  }
 
     public List<Account> getAccounts(){
-        return accounts;
+        return accountRepository.findAll();
     }
 
     public Account addAccount(Account account){
-          accounts.add(account);
-         return account;
+         return accountRepository.save(account);
+
 
     }
 
-    public Account find(String name){
-        return accounts.stream()
-                .filter(n -> n.getOwnerName().equalsIgnoreCase(name))
-                .findFirst()
-                .orElseThrow(()-> new AccountNotFound("Account Not Found: " + name));
+    public Account find(Long id){
+        return accountRepository
+                .findById(id)
+                .orElseThrow(()-> new AccountNotFound("Account Not Found: " + id));
     }
 
-    public Account deposit(String name , double amount){
+    public Account deposit(Long id , double amount){
       if (amount <= 0){
           throw new InValidAmount("Invalid amount");
 
       }
-      Account acc = find(name);
+      Account acc = find(id);
 
       acc.setBalance(acc.getBalance() + amount);
 
-      return acc;
+      return accountRepository.save(acc);
     }
 
-    public Account withdraw(String name , double amount){
+    public Account withdraw(Long id , double amount){
         if (amount <= 0){
             throw new InValidAmount("Invalid amount");
 
         }
 
 
-        Account acc = find(name);
+        Account acc = find(id);
 
 
         if (amount > acc.getBalance()){
@@ -55,21 +60,22 @@ public class AccountService {
         }
         acc.setBalance(acc.getBalance() - amount);
 
-        return acc;
+        return accountRepository.save(acc);
 
     }
 
-    public Account update(String name , Account updatedAccount){
-        Account oldAccount = find(name);
+    public Account update(Long id , Account updatedAccount){
+        Account oldAccount = find(id);
 
         oldAccount.setOwnerName(updatedAccount.getOwnerName());
 
-        return oldAccount;
+        return accountRepository.save(oldAccount);
     }
-    public Account delete(String name ){
-        Account acc = find(name);
-        accounts.remove(acc);
-
+    public Account delete(Long id ){
+        Account acc = find(id);
+        accountRepository.delete(acc);
         return acc;
+
+
     }
 }

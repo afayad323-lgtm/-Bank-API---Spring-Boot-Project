@@ -1,4 +1,5 @@
 package com.ahmed.bank_api.controller;
+import com.ahmed.bank_api.dto.AmountRequest;
 import com.ahmed.bank_api.dto.CreateAccountRequest;
 import com.ahmed.bank_api.dto.UpdateAccountRequest;
 import com.ahmed.bank_api.model.Account;
@@ -20,9 +21,9 @@ public class AccountController {
         return accountService.getAccounts();
     }
 
-    @GetMapping("/accounts/{name}")
-    public Account getOneAccount(@PathVariable String name){
-        return accountService.find(name);
+    @GetMapping("/accounts/{id}")
+    public Account getOneAccount(@PathVariable Long id){
+        return accountService.find(id);
     }
 
     @PostMapping("/accounts")
@@ -34,25 +35,25 @@ public class AccountController {
 
 
     }
-    @PostMapping("/accounts/{name}/deposit")
-    public Account deposit(@PathVariable String name , @RequestParam double amount){
-        return accountService.deposit(name , amount);
+    @PostMapping("/accounts/{id}/deposit")
+    public Account deposit(@PathVariable Long id , @RequestBody AmountRequest request){
+        return accountService.deposit(id , request.getAmount());
     }
-    @PostMapping("/accounts/{name}/withdraw")
-    public Account withdraw(@PathVariable String name , @RequestParam double amount){
-        return accountService.withdraw(name , amount);
+    @PostMapping("/accounts/{id}/withdraw")
+    public Account withdraw(@PathVariable Long id , @RequestBody AmountRequest request){
+        return accountService.withdraw(id , request.getAmount());
     }
 
-    @PutMapping("/accounts/{name}")
-    public Account update(@PathVariable String name , @Valid @RequestBody UpdateAccountRequest request){
+    @PutMapping("/accounts/{id}")
+    public Account update(@PathVariable Long id , @Valid @RequestBody UpdateAccountRequest request){
         Account account = new Account();
         account.setOwnerName(request.getOwnerName());
-        return accountService.update(name , account);
+        return accountService.update(id , account);
     }
 
-    @DeleteMapping("/accounts/{name}")
-    public Account delete(@PathVariable String name){
-        return accountService.delete(name);
+    @DeleteMapping("/accounts/{id}")
+    public Account delete(@PathVariable Long id){
+        return accountService.delete(id);
     }
 
 

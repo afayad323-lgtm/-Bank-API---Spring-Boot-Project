@@ -1,6 +1,11 @@
 package com.ahmed.bank_api.model;
+import jakarta.persistence.*;
 
+@Entity
 public class Account {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
     private String ownerName;
     private double balance;
 
@@ -27,5 +32,7 @@ public class Account {
         return balance;
     }
 
-
+    public long getId() {
+        return id;
+    }
 }
