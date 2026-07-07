@@ -1,13 +1,19 @@
 package com.ahmed.bank_api.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class CreateAccountRequest {
-@NotBlank(message = "Owner name is required")
-    private String ownerName;
+@NotNull
+    private Long customerId;
 
-    public String getOwnerName() {
-        return ownerName;
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
     }
 
 

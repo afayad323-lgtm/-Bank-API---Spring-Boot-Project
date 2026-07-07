@@ -6,26 +6,32 @@ public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String ownerName;
+
     private double balance;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 
     public Account(){}
 
-    public Account(String name , double amount){
-        this.ownerName = name;
-        this.balance = amount;
-    }
+//    public Account(Customer customer , double amount){
+//        this.customer = customer;
+//        this.balance = 0;
+//    }
 
-    public void setOwnerName(String ownerName) {
-        this.ownerName = ownerName;
-    }
+
 
     public void setBalance(double balance) {
         this.balance = balance;
     }
 
-    public String getOwnerName() {
-        return ownerName;
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
     public double getBalance() {

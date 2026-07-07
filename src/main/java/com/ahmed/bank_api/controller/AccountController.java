@@ -27,11 +27,9 @@ public class AccountController {
     }
 
     @PostMapping("/accounts")
-    public Account addAccount(@Valid @RequestBody CreateAccountRequest request){
-       Account account = new Account();
-       account.setOwnerName(request.getOwnerName());
-       account.setBalance(0);
-       return accountService.addAccount(account);
+    public Account create(@Valid @RequestBody CreateAccountRequest request){
+
+       return accountService.createAccount(request);
 
 
     }
@@ -44,12 +42,12 @@ public class AccountController {
         return accountService.withdraw(id , request.getAmount());
     }
 
-    @PutMapping("/accounts/{id}")
-    public Account update(@PathVariable Long id , @Valid @RequestBody UpdateAccountRequest request){
-        Account account = new Account();
-        account.setOwnerName(request.getOwnerName());
-        return accountService.update(id , account);
-    }
+//    @PutMapping("/accounts/{id}")
+//    public Account update(@PathVariable Long id , @Valid @RequestBody UpdateAccountRequest request){
+//        Account account = new Account();
+//
+//        return accountService.update(id , account);
+//    }
 
     @DeleteMapping("/accounts/{id}")
     public Account delete(@PathVariable Long id){
