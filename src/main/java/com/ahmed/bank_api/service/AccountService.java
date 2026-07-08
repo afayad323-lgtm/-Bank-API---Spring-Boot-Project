@@ -7,6 +7,7 @@ import com.ahmed.bank_api.model.Account;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.ahmed.bank_api.model.AccountStatus;
 import com.ahmed.bank_api.model.Customer;
 import com.ahmed.bank_api.repository.AccountRepository;
 import com.ahmed.bank_api.repository.CustomerRepository;
@@ -32,6 +33,15 @@ public class AccountService {
       Account account = new Account();
       account.setBalance(0);
       account.setCustomer(customer);
+      account.setAccountType(request.getAccountType());
+      if(accountRepository.existsByCustomerIdAndAccountType(
+              customer.getId(),
+              request.getAccountType())){
+
+          throw new RuntimeException("Customer already has this account type");
+      }
+
+      account.setAccountStatus(AccountStatus.ACTIVE);
       return accountRepository.save(account);
 
   }
@@ -48,6 +58,9 @@ public class AccountService {
 
       }
       Account acc = find(id);
+      if (acc.getAccountStatus() != AccountStatus.ACTIVE){
+          throw new RuntimeException("Account Is Not Active");
+      }
 
       acc.setBalance(acc.getBalance() + amount);
 
@@ -62,7 +75,9 @@ public class AccountService {
 
 
         Account acc = find(id);
-
+        if (acc.getAccountStatus() != AccountStatus.ACTIVE){
+            throw new RuntimeException("Account Is Not Active");
+        }
 
         if (amount > acc.getBalance()){
             throw new InSufficientAmount("Insufficient balance");
@@ -87,4 +102,37 @@ public class AccountService {
 
 
     }
+
+    public Account blockAccount(Long id){
+      Account account = find(id);
+      if (account.getAccountStatus() == AccountStatus.CLOSED){
+          throw new RuntimeException("Closed Account Cannot Be Blocked");
+      }
+      if (account.getAccountStatus() == AccountStatus.BLOCKED){
+          throw new RuntimeException("Account Already Blocked");
+      }
+      account.setAccountStatus(AccountStatus.BLOCKED);
+      return accountRepository.save(account);
+    }
+    public Account activateAccount(Long id){
+      Account account = find(id);
+      if (account.getAccountStatus() == AccountStatus.CLOSED){
+          throw new RuntimeException("Closed Account Cannot Be Activated");
+      }
+      if (account.getAccountStatus() == AccountStatus.ACTIVE){
+          throw new RuntimeException("Account Already Activated");
+      }
+      account.setAccountStatus(AccountStatus.ACTIVE);
+      return accountRepository.save(account);
+    }
+
+    public Account closeAccount(Long id){
+      Account account = find(id);
+      if (account.getAccountStatus() == AccountStatus.CLOSED){
+          throw new RuntimeException("Account Already Closed");
+      }
+      account.setAccountStatus(AccountStatus.CLOSED);
+      return accountRepository.save(account);
+    }
+
 }

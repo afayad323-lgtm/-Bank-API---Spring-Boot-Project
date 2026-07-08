@@ -13,6 +13,11 @@ public class Account {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
+    @Enumerated(EnumType.STRING)
+    private AccountType accountType;
+
+    @Enumerated(EnumType.STRING)
+    private AccountStatus accountStatus;
     public Account(){}
 
 //    public Account(Customer customer , double amount){
@@ -21,6 +26,21 @@ public class Account {
 //    }
 
 
+    public AccountType getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(AccountType accountType) {
+        this.accountType = accountType;
+    }
+
+    public AccountStatus getAccountStatus() {
+        return accountStatus;
+    }
+
+    public void setAccountStatus(AccountStatus accountStatus) {
+        this.accountStatus = accountStatus;
+    }
 
     public void setBalance(double balance) {
         this.balance = balance;

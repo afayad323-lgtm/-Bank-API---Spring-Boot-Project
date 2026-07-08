@@ -54,6 +54,21 @@ public class AccountController {
         return accountService.delete(id);
     }
 
+    @PatchMapping("/accounts/{id}/block")
+    public Account block(@PathVariable Long id){
+        return accountService.blockAccount(id);
+    }
+
+    @PatchMapping("/accounts/{id}/activate")
+    public Account activate(@PathVariable Long id){
+        return accountService.activateAccount(id);
+    }
+
+    @PatchMapping("/accounts/{id}/close")
+    public Account close(@PathVariable Long id){
+        return accountService.closeAccount(id);
+    }
+
 
 
 
