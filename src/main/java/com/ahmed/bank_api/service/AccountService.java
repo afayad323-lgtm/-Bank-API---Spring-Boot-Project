@@ -42,22 +42,25 @@ public class AccountService {
       }
 
       account.setAccountStatus(AccountStatus.ACTIVE);
+      accountRepository.save(account);
+
+      account.setAccountNumber("ACC" + String.format("%06d",account.getId()));
       return accountRepository.save(account);
 
   }
 
-    public Account find(Long id){
+    public Account findByAccountNumber(String accountNumber){
         return accountRepository
-                .findById(id)
-                .orElseThrow(()-> new AccountNotFound("Account Not Found: " + id));
+                .findByAccountNumber(accountNumber)
+                .orElseThrow(()-> new AccountNotFound("Account Not Found: " + accountNumber));
     }
 
-    public Account deposit(Long id , double amount){
+    public Account deposit(String accountNumber , double amount){
       if (amount <= 0){
           throw new InValidAmount("Invalid amount");
 
       }
-      Account acc = find(id);
+      Account acc = findByAccountNumber(accountNumber);
       if (acc.getAccountStatus() != AccountStatus.ACTIVE){
           throw new RuntimeException("Account Is Not Active");
       }
@@ -67,14 +70,14 @@ public class AccountService {
       return accountRepository.save(acc);
     }
 
-    public Account withdraw(Long id , double amount){
+    public Account withdraw(String accountNumber , double amount){
         if (amount <= 0){
             throw new InValidAmount("Invalid amount");
 
         }
 
 
-        Account acc = find(id);
+        Account acc = findByAccountNumber(accountNumber);
         if (acc.getAccountStatus() != AccountStatus.ACTIVE){
             throw new RuntimeException("Account Is Not Active");
         }
@@ -95,16 +98,16 @@ public class AccountService {
 //
 //        return accountRepository.save(oldAccount);
 //    }
-    public Account delete(Long id ){
-        Account acc = find(id);
+    public Account delete(String accountNumber ){
+        Account acc = findByAccountNumber(accountNumber);
         accountRepository.delete(acc);
         return acc;
 
 
     }
 
-    public Account blockAccount(Long id){
-      Account account = find(id);
+    public Account blockAccount(String accountNumber){
+      Account account = findByAccountNumber(accountNumber);
       if (account.getAccountStatus() == AccountStatus.CLOSED){
           throw new RuntimeException("Closed Account Cannot Be Blocked");
       }
@@ -114,8 +117,8 @@ public class AccountService {
       account.setAccountStatus(AccountStatus.BLOCKED);
       return accountRepository.save(account);
     }
-    public Account activateAccount(Long id){
-      Account account = find(id);
+    public Account activateAccount(String accountNumber){
+      Account account = findByAccountNumber(accountNumber);
       if (account.getAccountStatus() == AccountStatus.CLOSED){
           throw new RuntimeException("Closed Account Cannot Be Activated");
       }
@@ -126,8 +129,8 @@ public class AccountService {
       return accountRepository.save(account);
     }
 
-    public Account closeAccount(Long id){
-      Account account = find(id);
+    public Account closeAccount(String accountNumber){
+      Account account = findByAccountNumber(accountNumber);
       if (account.getAccountStatus() == AccountStatus.CLOSED){
           throw new RuntimeException("Account Already Closed");
       }

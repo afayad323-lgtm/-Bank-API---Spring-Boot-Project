@@ -13,6 +13,9 @@ public class Account {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
+    @Column(unique = true)
+    private String AccountNumber;
+
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 
@@ -60,5 +63,13 @@ public class Account {
 
     public long getId() {
         return id;
+    }
+
+    public String getAccountNumber() {
+        return AccountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        AccountNumber = accountNumber;
     }
 }

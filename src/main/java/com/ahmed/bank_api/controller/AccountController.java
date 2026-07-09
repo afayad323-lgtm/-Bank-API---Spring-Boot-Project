@@ -21,9 +21,9 @@ public class AccountController {
         return accountService.getAccounts();
     }
 
-    @GetMapping("/accounts/{id}")
-    public Account getOneAccount(@PathVariable Long id){
-        return accountService.find(id);
+    @GetMapping("/accounts/{accountNumber}")
+    public Account getOneAccount(@PathVariable String accountNumber){
+        return accountService.findByAccountNumber(accountNumber);
     }
 
     @PostMapping("/accounts")
@@ -33,13 +33,13 @@ public class AccountController {
 
 
     }
-    @PostMapping("/accounts/{id}/deposit")
-    public Account deposit(@PathVariable Long id , @RequestBody AmountRequest request){
-        return accountService.deposit(id , request.getAmount());
+    @PostMapping("/accounts/{accountNumber}/deposit")
+    public Account deposit(@PathVariable String accountNumber , @RequestBody AmountRequest request){
+        return accountService.deposit(accountNumber , request.getAmount());
     }
-    @PostMapping("/accounts/{id}/withdraw")
-    public Account withdraw(@PathVariable Long id , @RequestBody AmountRequest request){
-        return accountService.withdraw(id , request.getAmount());
+    @PostMapping("/accounts/{accountNumber}/withdraw")
+    public Account withdraw(@PathVariable String accountNumber, @RequestBody AmountRequest request){
+        return accountService.withdraw(accountNumber , request.getAmount());
     }
 
 //    @PutMapping("/accounts/{id}")
@@ -49,24 +49,24 @@ public class AccountController {
 //        return accountService.update(id , account);
 //    }
 
-    @DeleteMapping("/accounts/{id}")
-    public Account delete(@PathVariable Long id){
-        return accountService.delete(id);
+    @DeleteMapping("/accounts/{accountNumber}")
+    public Account delete(@PathVariable String accountNumber){
+        return accountService.delete(accountNumber);
     }
 
-    @PatchMapping("/accounts/{id}/block")
-    public Account block(@PathVariable Long id){
-        return accountService.blockAccount(id);
+    @PatchMapping("/accounts/{accountNumber}/block")
+    public Account block(@PathVariable String accountNumber){
+        return accountService.blockAccount(accountNumber);
     }
 
-    @PatchMapping("/accounts/{id}/activate")
-    public Account activate(@PathVariable Long id){
-        return accountService.activateAccount(id);
+    @PatchMapping("/accounts/{accountNumber}/activate")
+    public Account activate(@PathVariable String accountNumber){
+        return accountService.activateAccount(accountNumber);
     }
 
-    @PatchMapping("/accounts/{id}/close")
-    public Account close(@PathVariable Long id){
-        return accountService.closeAccount(id);
+    @PatchMapping("/accounts/{accountNumber}/close")
+    public Account close(@PathVariable String accountNumber){
+        return accountService.closeAccount(accountNumber);
     }
 
 
