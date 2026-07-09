@@ -1,18 +1,49 @@
 # 💳 Bank API - Spring Boot Project
 
-A simple REST API for banking system built using Spring Boot.
+A RESTful Banking API built with **Spring Boot** that simulates core banking operations such as customer management, account creation, deposits, withdrawals, and account lifecycle management.
 
 ---
 
 ## 🚀 Features
 
-- Create Account
+### Customer Management
+- Create Customer
+- Get All Customers
+- Get Customer by ID
+- Update Customer
+- Delete Customer
+
+### Account Management
+- Create Bank Account
 - Get All Accounts
-- Get Account by Name
+- Get Account by Account Number
+- Delete Account
+
+### Banking Operations
 - Deposit Money
 - Withdraw Money
+
+### Account Features
+- Unique Account Number Generation
+- Multiple Account Types
+  - Savings
+  - Current
+  - Business
+- Account Status Management
+  - Active
+  - Blocked
+  - Closed
+
+### Business Rules
+- A customer cannot own two accounts of the same type.
+- Deposits and withdrawals are allowed only for active accounts.
+- Blocked and closed accounts cannot perform transactions.
+- Every account receives a unique account number automatically.
+
+### Error Handling
 - Global Exception Handling
-- Clean Layered Architecture (Controller - Service - Model)
+- Validation
+- Custom Exceptions
 
 ---
 
@@ -21,44 +52,77 @@ A simple REST API for banking system built using Spring Boot.
 - Java 21
 - Spring Boot
 - Spring Web
+- Spring Data JPA
+- Hibernate
+- MySQL
 - Maven
 
 ---
 
-## 📡 API Endpoints
+## 📡 REST API
 
-### Create Account
-POST /accounts
+### Customers
 
+| Method | Endpoint |
+|--------|----------|
+| POST | `/customers` |
+| GET | `/customers` |
+| GET | `/customers/{id}` |
+| PUT | `/customers/{id}` |
+| DELETE | `/customers/{id}` |
 
-### Get All Accounts
-GET /accounts
+### Accounts
 
+| Method | Endpoint |
+|--------|----------|
+| POST | `/accounts` |
+| GET | `/accounts` |
+| GET | `/accounts/{accountNumber}` |
+| DELETE | `/accounts/{accountNumber}` |
 
-### Get Account
-GET /accounts/{name}
+### Transactions
 
+| Method | Endpoint |
+|--------|----------|
+| POST | `/accounts/{accountNumber}/deposit` |
+| POST | `/accounts/{accountNumber}/withdraw` |
 
-### Deposit
-POST /accounts/{name}/deposit?amount=500
+### Account Status
 
-
-### Withdraw
-POST /accounts/{name}/withdraw?amount=200
-
+| Method | Endpoint |
+|--------|----------|
+| PATCH | `/accounts/{accountNumber}/block` |
+| PATCH | `/accounts/{accountNumber}/activate` |
+| PATCH | `/accounts/{accountNumber}/close` |
 
 ---
 
 ## 🧠 Concepts Covered
 
-- Dependency Injection
-- IoC Container
-- REST API Design
-- Exception Handling (@RestControllerAdvice)
-- Service Layer Architecture
+- Spring Boot
+- RESTful API Design
+- Dependency Injection (IoC)
+- Layered Architecture
+- Spring Data JPA
+- Entity Relationships
+- One-to-Many / Many-to-One Mapping
+- Bean Validation
+- Global Exception Handling
+- Business Rules Implementation
+
+---
+
+## 📌 Upcoming Features
+
+- Money Transfer
+- Transaction History
+- JWT Authentication
+- Role-Based Authorization
+- Unit Testing
+- Docker Support
 
 ---
 
 ## 👨‍💻 Author
 
-Ahmed Fayad
+**Ahmed Fayad**
