@@ -80,6 +80,50 @@ public class GlobalExceptionHandler {
                 .body(error);
     }
 
+    @ExceptionHandler(CustomerNotFound.class)
+    public ResponseEntity<ErrorResponse>
+    handleCustomerNotFound(CustomerNotFound ex){
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+
+
+                );
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(error);
+
+    }
+
+    @ExceptionHandler(AccountNotActive.class)
+    public ResponseEntity<ErrorResponse>
+    handleAccountNotActive(AccountNotActive ex){
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+                return ResponseEntity
+                        .status(HttpStatus.CONFLICT)
+                        .body(error);
+    }
+
+    @ExceptionHandler(DuplicateAccount.class)
+    public ResponseEntity<ErrorResponse>
+    handleDuplicateAccount(DuplicateAccount ex){
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(error);
+    }
+
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse>
     handleGeneral(Exception ex){
@@ -87,7 +131,7 @@ public class GlobalExceptionHandler {
         ErrorResponse error =
                 new ErrorResponse(
                         HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                        ex.getMessage(),
+                        "Something Went Wrong",
                         LocalDateTime.now()
                 );
 

@@ -1,9 +1,7 @@
 package com.ahmed.bank_api.service;
 import com.ahmed.bank_api.dto.CreateAccountRequest;
 import com.ahmed.bank_api.dto.TransferRequest;
-import com.ahmed.bank_api.exception.AccountNotFound;
-import com.ahmed.bank_api.exception.InSufficientAmount;
-import com.ahmed.bank_api.exception.InValidAmount;
+import com.ahmed.bank_api.exception.*;
 import com.ahmed.bank_api.model.Account;
 import java.util.List;
 import java.util.ArrayList;
@@ -29,9 +27,10 @@ public class AccountService {
         return accountRepository.findAll();
     }
 
+    @Transactional
   public Account createAccount(CreateAccountRequest request){
       Customer customer = customerRepository.findById(request.getCustomerId())
-              .orElseThrow(()-> new RuntimeException("Customer Not Found"));
+              .orElseThrow(()-> new CustomerNotFound("Customer Not Found"));
       Account account = new Account();
       account.setBalance(0);
       account.setCustomer(customer);
@@ -40,14 +39,14 @@ public class AccountService {
               customer.getId(),
               request.getAccountType())){
 
-          throw new RuntimeException("Customer already has this account type");
+          throw new DuplicateAccount("Customer already has this account type");
       }
 
       account.setAccountStatus(AccountStatus.ACTIVE);
       accountRepository.save(account);
 
       account.setAccountNumber("ACC" + String.format("%06d",account.getId()));
-      return accountRepository.save(account);
+      return account;
 
   }
 
@@ -59,40 +58,19 @@ public class AccountService {
 
     @Transactional
     public Account deposit(String accountNumber , double amount){
-      if (amount <= 0){
-          throw new InValidAmount("Invalid amount");
-
-      }
-      Account acc = findByAccountNumber(accountNumber);
-      if (acc.getAccountStatus() != AccountStatus.ACTIVE){
-          throw new RuntimeException("Account Is Not Active");
-      }
-
+      validateAmount(amount);
+      Account acc = findActiveAccount(accountNumber);
       acc.setBalance(acc.getBalance() + amount);
-
       return acc;
     }
 
     @Transactional
     public Account withdraw(String accountNumber , double amount){
-        if (amount <= 0){
-            throw new InValidAmount("Invalid amount");
-
-        }
-
-
-        Account acc = findByAccountNumber(accountNumber);
-        if (acc.getAccountStatus() != AccountStatus.ACTIVE){
-            throw new RuntimeException("Account Is Not Active");
-        }
-
-        if (amount > acc.getBalance()){
-            throw new InSufficientAmount("Insufficient balance");
-        }
+        validateAmount(amount);
+        Account acc = findActiveAccount(accountNumber);
+        validateBalance(acc , amount);
         acc.setBalance(acc.getBalance() - amount);
-
         return acc;
-
     }
 
 
@@ -100,8 +78,6 @@ public class AccountService {
         Account acc = findByAccountNumber(accountNumber);
         accountRepository.delete(acc);
         return acc;
-
-
     }
 
     @Transactional
@@ -146,25 +122,39 @@ public class AccountService {
         if (request.getFromAccountNumber().equals(request.getToAccountNumber())){
             throw new RuntimeException("Cannot Transfer To The Same Account");
         }
-        if (request.getAmount() <= 0){
-            throw new InValidAmount("Invalid Amount");
-        }
-        Account fromAccount = findByAccountNumber(request.getFromAccountNumber());
-        Account toAccount = findByAccountNumber(request.getToAccountNumber());
-        if (fromAccount.getAccountStatus() != AccountStatus.ACTIVE){
-            throw new RuntimeException("Sender Account Not Active");
-        }
-        if (toAccount.getAccountStatus() != AccountStatus.ACTIVE){
-            throw new RuntimeException("Reciever Account Not Active");
-        }
-        if (request.getAmount() > fromAccount.getBalance()){
-            throw new InSufficientAmount("Insufficient Balance");
-        }
+       validateAmount(request.getAmount());
+        Account fromAccount = findActiveAccount(request.getFromAccountNumber());
+        Account toAccount = findActiveAccount(request.getToAccountNumber());
+       validateBalance(fromAccount , request.getAmount());
         fromAccount.setBalance(fromAccount.getBalance() - request.getAmount());
         toAccount.setBalance(toAccount.getBalance() + request.getAmount());
-
-
         return fromAccount;
+    }
+
+
+    //-------------------//
+    private void validateAmount(double amount){
+      if (amount <= 0){
+          throw new InValidAmount("Invalid Amount");
+      }
+    }
+
+    private void validateActiveAccount(Account account){
+      if (account.getAccountStatus() != AccountStatus.ACTIVE){
+          throw new AccountNotActive("Account Is Not Active");
+      }
+    }
+
+    private Account findActiveAccount(String accountNumber){
+      Account account = findByAccountNumber(accountNumber);
+      validateActiveAccount(account);
+      return account;
+    }
+
+    private void validateBalance(Account account , double amount){
+      if (amount > account.getBalance()){
+          throw new InSufficientAmount("Insufficient Balance");
+      }
     }
 
 }
