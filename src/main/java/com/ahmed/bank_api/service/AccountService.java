@@ -57,6 +57,7 @@ public class AccountService {
                 .orElseThrow(()-> new AccountNotFound("Account Not Found: " + accountNumber));
     }
 
+    @Transactional
     public Account deposit(String accountNumber , double amount){
       if (amount <= 0){
           throw new InValidAmount("Invalid amount");
@@ -69,9 +70,10 @@ public class AccountService {
 
       acc.setBalance(acc.getBalance() + amount);
 
-      return accountRepository.save(acc);
+      return acc;
     }
 
+    @Transactional
     public Account withdraw(String accountNumber , double amount){
         if (amount <= 0){
             throw new InValidAmount("Invalid amount");
@@ -89,17 +91,11 @@ public class AccountService {
         }
         acc.setBalance(acc.getBalance() - amount);
 
-        return accountRepository.save(acc);
+        return acc;
 
     }
 
-//    public Account update(Long id , Account updatedAccount){
-//        Account oldAccount = find(id);
-//oldAccount.setCustomer();
-//
-//
-//        return accountRepository.save(oldAccount);
-//    }
+
     public Account delete(String accountNumber ){
         Account acc = findByAccountNumber(accountNumber);
         accountRepository.delete(acc);
@@ -108,6 +104,7 @@ public class AccountService {
 
     }
 
+    @Transactional
     public Account blockAccount(String accountNumber){
       Account account = findByAccountNumber(accountNumber);
       if (account.getAccountStatus() == AccountStatus.CLOSED){
@@ -117,8 +114,10 @@ public class AccountService {
           throw new RuntimeException("Account Already Blocked");
       }
       account.setAccountStatus(AccountStatus.BLOCKED);
-      return accountRepository.save(account);
+      return account;
     }
+
+    @Transactional
     public Account activateAccount(String accountNumber){
       Account account = findByAccountNumber(accountNumber);
       if (account.getAccountStatus() == AccountStatus.CLOSED){
@@ -128,17 +127,19 @@ public class AccountService {
           throw new RuntimeException("Account Already Activated");
       }
       account.setAccountStatus(AccountStatus.ACTIVE);
-      return accountRepository.save(account);
+      return account;
     }
 
+    @Transactional
     public Account closeAccount(String accountNumber){
       Account account = findByAccountNumber(accountNumber);
       if (account.getAccountStatus() == AccountStatus.CLOSED){
           throw new RuntimeException("Account Already Closed");
       }
       account.setAccountStatus(AccountStatus.CLOSED);
-      return accountRepository.save(account);
+      return account;
     }
+
     @Transactional
     public Account transfer(TransferRequest request){
 
@@ -162,8 +163,7 @@ public class AccountService {
         fromAccount.setBalance(fromAccount.getBalance() - request.getAmount());
         toAccount.setBalance(toAccount.getBalance() + request.getAmount());
 
-        accountRepository.save(fromAccount);
-        accountRepository.save(toAccount);
+
         return fromAccount;
     }
 
