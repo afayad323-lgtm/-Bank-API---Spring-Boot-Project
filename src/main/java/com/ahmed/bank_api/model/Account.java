@@ -14,7 +14,7 @@ public class Account {
     private Customer customer;
 
     @Column(unique = true)
-    private String AccountNumber;
+    private String accountNumber;
 
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
@@ -66,10 +66,10 @@ public class Account {
     }
 
     public String getAccountNumber() {
-        return AccountNumber;
+        return accountNumber;
     }
 
     public void setAccountNumber(String accountNumber) {
-        AccountNumber = accountNumber;
+        accountNumber = accountNumber;
     }
 }

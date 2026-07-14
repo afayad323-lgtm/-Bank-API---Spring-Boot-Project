@@ -1,6 +1,7 @@
 package com.ahmed.bank_api.controller;
 import com.ahmed.bank_api.dto.AmountRequest;
 import com.ahmed.bank_api.dto.CreateAccountRequest;
+import com.ahmed.bank_api.dto.TransferRequest;
 import com.ahmed.bank_api.dto.UpdateAccountRequest;
 import com.ahmed.bank_api.model.Account;
 import jakarta.validation.Valid;
@@ -69,7 +70,10 @@ public class AccountController {
         return accountService.closeAccount(accountNumber);
     }
 
-
+@PostMapping("/accounts/transfer")
+    public Account transfer(@RequestBody TransferRequest request){
+        return accountService.transfer(request);
+}
 
 
 

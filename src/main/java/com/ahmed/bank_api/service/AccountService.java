@@ -1,5 +1,6 @@
 package com.ahmed.bank_api.service;
 import com.ahmed.bank_api.dto.CreateAccountRequest;
+import com.ahmed.bank_api.dto.TransferRequest;
 import com.ahmed.bank_api.exception.AccountNotFound;
 import com.ahmed.bank_api.exception.InSufficientAmount;
 import com.ahmed.bank_api.exception.InValidAmount;
@@ -11,6 +12,7 @@ import com.ahmed.bank_api.model.AccountStatus;
 import com.ahmed.bank_api.model.Customer;
 import com.ahmed.bank_api.repository.AccountRepository;
 import com.ahmed.bank_api.repository.CustomerRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -136,6 +138,33 @@ public class AccountService {
       }
       account.setAccountStatus(AccountStatus.CLOSED);
       return accountRepository.save(account);
+    }
+    @Transactional
+    public Account transfer(TransferRequest request){
+
+        if (request.getFromAccountNumber().equals(request.getToAccountNumber())){
+            throw new RuntimeException("Cannot Transfer To The Same Account");
+        }
+        if (request.getAmount() <= 0){
+            throw new InValidAmount("Invalid Amount");
+        }
+        Account fromAccount = findByAccountNumber(request.getFromAccountNumber());
+        Account toAccount = findByAccountNumber(request.getToAccountNumber());
+        if (fromAccount.getAccountStatus() != AccountStatus.ACTIVE){
+            throw new RuntimeException("Sender Account Not Active");
+        }
+        if (toAccount.getAccountStatus() != AccountStatus.ACTIVE){
+            throw new RuntimeException("Reciever Account Not Active");
+        }
+        if (request.getAmount() > fromAccount.getBalance()){
+            throw new InSufficientAmount("Insufficient Balance");
+        }
+        fromAccount.setBalance(fromAccount.getBalance() - request.getAmount());
+        toAccount.setBalance(toAccount.getBalance() + request.getAmount());
+
+        accountRepository.save(fromAccount);
+        accountRepository.save(toAccount);
+        return fromAccount;
     }
 
 }
