@@ -639,7 +639,205 @@ public class AccountServiceTest {
                 .delete(any(Account.class));
     }
 
+
+    //blockAccount
+    @Test
+    void blockAccount_shouldBlockAccount_whenAccountIsActive(){
+        Account account = new Account();
+        account.setAccountStatus(AccountStatus.ACTIVE);
+        account.setAccountNumber("ACC000001");
+        account.setBalance(1000);
+        when(accountRepository.findByAccountNumber("ACC000001"))
+                .thenReturn(Optional.of(account));
+
+        Account result = accountService.blockAccount("ACC000001");
+
+        assertEquals(AccountStatus.BLOCKED , result.getAccountStatus() );
+        assertEquals(1000 , result.getBalance());
+
+        verify(accountRepository)
+                .findByAccountNumber("ACC000001");
+
+
+
+    }
+
+    @Test
+        void blockAccount_shouldThrowException_whenAccountIsClosed(){
+        Account account = new Account();
+        account.setAccountNumber("ACC000001");
+        account.setAccountStatus(AccountStatus.CLOSED);
+        account.setBalance(1000);
+
+        when(accountRepository.findByAccountNumber("ACC000001"))
+                .thenReturn(Optional.of(account));
+
+        RuntimeException ex = assertThrows(
+                RuntimeException.class,
+                ()-> accountService.blockAccount("ACC000001")
+        );
+
+        assertEquals("Closed Account Cannot Be Blocked" , ex.getMessage());
+        assertEquals(AccountStatus.CLOSED , account.getAccountStatus());
+
+        verify(accountRepository)
+                .findByAccountNumber("ACC000001");
+
+    }
+
+    @Test
+        void blockAccount_shouldThrowException_whenAccountIsBlocked(){
+        Account account = new Account();
+        account.setAccountNumber("ACC000001");
+        account.setAccountStatus(AccountStatus.BLOCKED);
+        account.setBalance(1000);
+
+        when(accountRepository.findByAccountNumber("ACC000001"))
+                .thenReturn(Optional.of(account));
+
+        RuntimeException ex = assertThrows(
+                RuntimeException.class,
+                ()-> accountService.blockAccount("ACC000001")
+        );
+
+        assertEquals("Account Already Blocked" , ex.getMessage());
+        assertEquals(AccountStatus.BLOCKED , account.getAccountStatus());
+        verify(accountRepository)
+                .findByAccountNumber("ACC000001");
+    }
+
+    //activateAccount
+    @Test
+        void activateAccount_shouldActivateAccount_whenAccountIsBlocked(){
+        Account account = new Account();
+        account.setAccountStatus(AccountStatus.BLOCKED);
+        account.setAccountNumber("ACC000001");
+        account.setBalance(1000);
+
+        when(accountRepository.findByAccountNumber("ACC000001"))
+                .thenReturn(Optional.of(account));
+
+        Account result = accountService.activateAccount("ACC000001");
+
+        assertEquals(AccountStatus.ACTIVE , result.getAccountStatus());
+        assertEquals(1000 , result.getBalance());
+        assertEquals("ACC000001" , result.getAccountNumber());
+
+        verify(accountRepository)
+                .findByAccountNumber("ACC000001");
+    }
     
+    @Test
+        void activateAccount_shouldThrowException_whenAccountIsClosed(){
+        Account account = new Account();
+        account.setAccountNumber("ACC000001");
+        account.setAccountStatus(AccountStatus.CLOSED);
+        account.setBalance(1000);
+
+        when(accountRepository.findByAccountNumber("ACC000001"))
+                .thenReturn(Optional.of(account));
+
+        RuntimeException ex = assertThrows(
+                RuntimeException.class,
+                ()-> accountService.activateAccount("ACC000001")
+        );
+
+        assertEquals("Closed Account Cannot Be Activated" , ex.getMessage());
+        assertEquals(AccountStatus.CLOSED , account.getAccountStatus());
+
+        verify(accountRepository)
+                .findByAccountNumber("ACC000001");
+
+
+    }
+    
+    @Test
+        void activateAccount_shouldThrowException_whenAccountIsActive(){
+        Account account = new Account();
+        account.setAccountNumber("ACC000001");
+        account.setAccountStatus(AccountStatus.ACTIVE);
+        account.setBalance(1000);
+
+        when(accountRepository.findByAccountNumber("ACC000001"))
+                .thenReturn(Optional.of(account));
+
+        RuntimeException ex = assertThrows(
+                RuntimeException.class,
+                ()-> accountService.activateAccount("ACC000001")
+        );
+
+        assertEquals("Account Already Activated" , ex.getMessage());
+        assertEquals(1000 , account.getBalance());
+
+        verify(accountRepository)
+                .findByAccountNumber("ACC000001");
+    }
+
+
+    //closeAccount
+    @Test
+        void closeAccount_shouldCloseAccount_whenAccountIsActive(){
+
+        Account account = new Account();
+        account.setAccountNumber("ACC000001");
+        account.setBalance(1000);
+        account.setAccountStatus(AccountStatus.ACTIVE);
+
+        when(accountRepository.findByAccountNumber("ACC000001"))
+                .thenReturn(Optional.of(account));
+
+        Account result = accountService.closeAccount("ACC000001");
+
+        assertEquals(AccountStatus.CLOSED , result.getAccountStatus());
+        assertEquals(1000 , result.getBalance());
+        assertEquals("ACC000001" , result.getAccountNumber());
+
+        verify(accountRepository)
+                .findByAccountNumber("ACC000001");
+    }
+
+    @Test
+        void closeAccount_shouldCloseAccount_whenAccountIsBlocked(){
+        Account account = new Account();
+        account.setAccountNumber("ACC000001");
+        account.setBalance(1000);
+        account.setAccountStatus(AccountStatus.BLOCKED);
+
+        when(accountRepository.findByAccountNumber("ACC000001"))
+                .thenReturn(Optional.of(account));
+
+        Account result = accountService.closeAccount("ACC000001");
+
+        assertEquals(AccountStatus.CLOSED , result.getAccountStatus());
+        assertEquals(1000 , result.getBalance());
+        assertEquals("ACC000001" , result.getAccountNumber());
+
+        verify(accountRepository)
+                .findByAccountNumber("ACC000001");
+
+    }
+
+    @Test
+        void closeAccount_shouldThrowException_whenAccountIsClosed(){
+        Account account = new Account();
+        account.setAccountStatus(AccountStatus.CLOSED);
+        account.setAccountNumber("ACC000001");
+        account.setBalance(1000);
+
+        when(accountRepository.findByAccountNumber("ACC000001"))
+                .thenReturn(Optional.of(account));
+
+        RuntimeException ex = assertThrows(
+                RuntimeException.class,
+                () -> accountService.closeAccount("ACC000001")
+        );
+
+        assertEquals("Account Already Closed" , ex.getMessage());
+
+        verify(accountRepository)
+                .findByAccountNumber("ACC000001");
+    }
+
 
 
 }
