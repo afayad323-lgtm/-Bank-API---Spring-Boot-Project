@@ -43,7 +43,7 @@ public class AccountService {
       }
 
       account.setAccountStatus(AccountStatus.ACTIVE);
-      accountRepository.save(account);
+     account =  accountRepository.save(account);
 
       account.setAccountNumber("ACC" + String.format("%06d",account.getId()));
       return account;
