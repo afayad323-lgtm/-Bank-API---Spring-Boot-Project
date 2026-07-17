@@ -37,10 +37,12 @@ public class CustomerService {
 
     }
 
-    public void deleteCustomer(Long id){
+    public Customer deleteCustomer(Long id){
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(()-> new RuntimeException("Customer Not Found"));
         customerRepository.delete(customer);
+
+        return customer;
 
     }
 }
