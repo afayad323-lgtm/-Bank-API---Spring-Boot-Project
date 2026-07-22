@@ -3,11 +3,10 @@ package com.ahmed.bank_api.controller;
 import com.ahmed.bank_api.dto.UpdateCustomerRequest;
 import com.ahmed.bank_api.model.Customer;
 import com.ahmed.bank_api.service.CustomerService;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -29,7 +28,7 @@ import org.springframework.http.MediaType;
 
 @WebMvcTest(CustomerController.class)
 public class CustomerControllerTest {
-    private static final Logger log = LoggerFactory.getLogger(CustomerControllerTest.class);
+
     @Autowired
     private MockMvc mockMvc;
 
