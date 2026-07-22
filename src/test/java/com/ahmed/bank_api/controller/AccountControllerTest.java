@@ -3,6 +3,7 @@ package com.ahmed.bank_api.controller;
 
 import com.ahmed.bank_api.dto.AmountRequest;
 import com.ahmed.bank_api.dto.CreateAccountRequest;
+import com.ahmed.bank_api.dto.TransferRequest;
 import com.ahmed.bank_api.exception.*;
 import com.ahmed.bank_api.model.Account;
 import com.ahmed.bank_api.model.AccountStatus;
@@ -363,6 +364,345 @@ public class AccountControllerTest {
         verify(accountService)
                 .withdraw("ACC000001" , 500);
     }
+
+    @Test
+    void transfer_shouldTransferBetweenAccounts_whenAmountIsValid() throws Exception {
+        TransferRequest request = new TransferRequest();
+        request.setFromAccountNumber("ACC000001");
+        request.setToAccountNumber("ACC000002");
+        request.setAmount(500);
+
+        Account account = new Account();
+        account.setAccountNumber("ACC000001");
+        account.setBalance(1000);
+
+        when(accountService.transfer(any(TransferRequest.class)))
+                .thenReturn(account);
+
+        mockMvc.perform(post("/accounts/transfer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountNumber").value("ACC000001"))
+                .andExpect(jsonPath("$.balance").value(1000));
+        verify(accountService)
+                .transfer(any(TransferRequest.class));
+
+    }
+
+    @Test
+    void transfer_shouldReturn400_whenTransferToSameAccount() throws Exception {
+        TransferRequest request = new TransferRequest();
+        request.setFromAccountNumber("ACC000001");
+        request.setToAccountNumber("ACC000001");
+        request.setAmount(500);
+
+        when(accountService.transfer(any(TransferRequest.class)))
+                .thenThrow(new RuntimeException("Cannot Transfer To The Same Account"));
+
+        mockMvc.perform(post("/accounts/transfer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isInternalServerError());
+
+
+        verify(accountService)
+                .transfer(any(TransferRequest.class));
+    }
+
+    @Test
+    void transfer_shouldReturn400_whenAmountIsInvalid() throws Exception {
+        TransferRequest request = new TransferRequest();
+        request.setFromAccountNumber("ACC000001");
+        request.setToAccountNumber("ACC000002");
+        request.setAmount(-100);
+
+        when(accountService.transfer(any(TransferRequest.class)))
+                .thenThrow(new InValidAmount("Invalid Amount"));
+
+        mockMvc.perform(post("/accounts/transfer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Invalid Amount"));
+
+        verify(accountService)
+                .transfer(any(TransferRequest.class));
+    }
+
+    @Test
+    void transfer_shouldReturn409_whenBalanceIsInsufficient() throws Exception {
+        TransferRequest request = new TransferRequest();
+        request.setFromAccountNumber("ACC000001");
+        request.setToAccountNumber("ACC000002");
+        request.setAmount(500);
+
+        when(accountService.transfer(any(TransferRequest.class)))
+                .thenThrow(new InSufficientAmount("Insufficient Balance"));
+
+        mockMvc.perform(post("/accounts/transfer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Insufficient Balance"));
+
+        verify(accountService)
+                .transfer(any(TransferRequest.class));
+    }
+
+    @Test
+    void transfer_shouldReturn404_whenSenderNotFound() throws Exception {
+        TransferRequest request = new TransferRequest();
+        request.setFromAccountNumber("ACC000001");
+        request.setToAccountNumber("ACC000002");
+        request.setAmount(500);
+
+        when(accountService.transfer(any(TransferRequest.class)))
+                .thenThrow(new AccountNotFound("Account Not Found: ACC000001"));
+
+        mockMvc.perform(post("/accounts/transfer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Account Not Found: ACC000001"));
+
+        verify(accountService)
+                .transfer(any(TransferRequest.class));
+    }
+
+    @Test
+    void transfer_shouldReturn404_whenRecieverNotFound() throws Exception {
+        TransferRequest request = new TransferRequest();
+        request.setFromAccountNumber("ACC000001");
+        request.setToAccountNumber("ACC000002");
+        request.setAmount(500);
+
+        when(accountService.transfer(any(TransferRequest.class)))
+                .thenThrow(new AccountNotFound("Account Not Found: ACC000002"));
+
+        mockMvc.perform(post("/accounts/transfer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Account Not Found: ACC000002"));
+
+        verify(accountService)
+                .transfer(any(TransferRequest.class));
+    }
+
+    @Test
+    void transfer_shouldReturn409_whenSenderIsNotActive() throws Exception {
+        TransferRequest request = new TransferRequest();
+        request.setFromAccountNumber("ACC000001");
+        request.setToAccountNumber("ACC000002");
+        request.setAmount(500);
+
+        when(accountService.transfer(any(TransferRequest.class)))
+                .thenThrow(new AccountNotActive("Account Not Active"));
+
+        mockMvc.perform(post("/accounts/transfer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Account Not Active"));
+
+        verify(accountService)
+                .transfer(any(TransferRequest.class));
+    }
+
+    @Test
+    void transfer_shouldReturn409_whenReceiverIsNotActive() throws Exception {
+        TransferRequest request = new TransferRequest();
+        request.setFromAccountNumber("ACC000001");
+        request.setToAccountNumber("ACC000002");
+        request.setAmount(500);
+
+        when(accountService.transfer(any(TransferRequest.class)))
+                .thenThrow(new AccountNotActive("Account Not Active"));
+
+        mockMvc.perform(post("/accounts/transfer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Account Not Active"));
+
+        verify(accountService)
+                .transfer(any(TransferRequest.class));
+    }
+
+    @Test
+    void blockAccount_shouldBlockAccount_whenAccountIsActive() throws Exception {
+        Account account = new Account();
+        account.setAccountNumber("ACC000001");
+        account.setAccountStatus(AccountStatus.BLOCKED);
+
+        when(accountService.blockAccount("ACC000001"))
+                .thenReturn(account);
+
+        mockMvc.perform(patch("/accounts/{accountNumber}/block","ACC000001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountStatus").value("BLOCKED"));
+
+        verify(accountService)
+                .blockAccount("ACC000001");
+
+    }
+
+    @Test
+    void blockAccount_shouldReturn404_whenAccountNotFound() throws Exception {
+        when(accountService.blockAccount("ACC000001"))
+                .thenThrow(new AccountNotFound("Account Not Found: ACC000001"));
+
+        mockMvc.perform(patch("/accounts/{accountNumber}/block" , "ACC000001"))
+                .andExpect(status().isNotFound());
+
+        verify(accountService)
+                .blockAccount("ACC000001");
+    }
+
+    @Test
+    void blockAccount_shouldReturn409_whenAccountIsBlocked() throws Exception {
+        when(accountService.blockAccount("ACC000001"))
+                .thenThrow(new RuntimeException("Account Is Already Blocked"));
+
+        mockMvc.perform(patch("/accounts/{accountNumber}/block" , "ACC000001"))
+                .andExpect(status().isInternalServerError());
+        verify(accountService)
+                .blockAccount("ACC000001");
+    }
+
+    @Test
+    void blockAccount_shouldReturn409_whenAccountClosed() throws Exception {
+        when(accountService.blockAccount("ACC000001"))
+                .thenThrow(new RuntimeException("Closed Account Cannot Be Blocked"));
+
+        mockMvc.perform(patch("/accounts/{accountNumber}/block" , "ACC000001"))
+                .andExpect(status().isInternalServerError());
+
+        verify(accountService)
+                .blockAccount("ACC000001");
+    }
+
+    @Test
+    void activateAccount_shouldActivateAccount_whenAccountIsBlocked() throws Exception {
+        Account account = new Account();
+        account.setAccountNumber("ACC000001");
+        account.setAccountStatus(AccountStatus.ACTIVE);
+
+        when(accountService.activateAccount("ACC000001"))
+                .thenReturn(account);
+
+        mockMvc.perform(patch("/accounts/{accountNumber}/activate" , "ACC000001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountStatus").value("ACTIVE"));
+
+        verify(accountService)
+                .activateAccount("ACC000001");
+    }
+
+    @Test
+    void activateAccount_shouldReturn404_whenAccountNotFound() throws Exception {
+        when(accountService.activateAccount("ACC000001"))
+                .thenThrow(new AccountNotFound("Account Not Found: ACC000001"));
+
+        mockMvc.perform(patch("/accounts/{accountNumber}/activate", "ACC000001"))
+                .andExpect(status().isNotFound());
+
+        verify(accountService)
+                .activateAccount("ACC000001");
+    }
+
+    @Test
+    void activateAccount_shouldReturn409_whenAccountClosed() throws Exception {
+        when(accountService.activateAccount("ACC000001"))
+                .thenThrow(new RuntimeException("Closed Account Cannot Be Activated"));
+
+        mockMvc.perform(patch("/accounts/{accountNumber}/activate","ACC000001"))
+                .andExpect(status().isInternalServerError());
+
+        verify(accountService)
+                .activateAccount("ACC000001");
+    }
+
+    @Test
+    void activateAccount_shouldReturn409_whenAccountActive() throws Exception {
+        when(accountService.activateAccount("ACC000001"))
+                .thenThrow(new RuntimeException("Account is Already Active"));
+
+        mockMvc.perform(patch("/accounts/{accountNumber}/activate" , "ACC000001"))
+                .andExpect(status().isInternalServerError());
+
+        verify(accountService)
+                .activateAccount("ACC000001");
+    }
+
+    @Test
+    void closeAccount_shouldCloseAccount_whenAccountIsActive() throws Exception {
+        Account account = new Account();
+        account.setAccountNumber("ACC000001");
+        account.setAccountStatus(AccountStatus.CLOSED);
+
+        when(accountService.closeAccount("ACC000001"))
+                .thenReturn(account);
+
+        mockMvc.perform(patch("/accounts/{accountNumber}/close","ACC000001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountStatus").value("CLOSED"));
+
+        verify(accountService)
+                .closeAccount("ACC000001");
+    }
+
+    @Test
+    void closeAccount_shouldReturn404_whenAccountNotFound() throws Exception {
+        when(accountService.closeAccount("ACC000001"))
+                .thenThrow(new AccountNotFound("Account Not Found: ACC000001"));
+        mockMvc.perform(patch("/accounts/{accountNumber}/close","ACC000001"))
+                .andExpect(status().isNotFound());
+
+        verify(accountService)
+                .closeAccount("ACC000001");
+    }
+
+    @Test
+    void closeAccount_shouldReturn409_whenAccountIsClosed() throws Exception {
+        when(accountService.closeAccount("ACC000001"))
+                .thenThrow(new RuntimeException("Account is already closed"));
+
+        mockMvc.perform(patch("/accounts/{accountNumber}/close" , "ACC000001"))
+                .andExpect(status().isInternalServerError());
+
+        verify(accountService)
+                .closeAccount("ACC000001");
+    }
+
+
+
+    @Test
+    void deleteAccount_shouldDeleteAccount_whenAccountExists() throws Exception {
+        Account account = new Account();
+        account.setAccountNumber("ACC000001");
+
+        when(accountService.delete("ACC000001"))
+                .thenReturn(account);
+        mockMvc.perform(delete("/accounts/{accountNumber}" , "ACC000001"))
+                .andExpect(status().isOk());
+        verify(accountService)
+                .delete("ACC000001");
+    }
+
+    @Test
+    void deleteAccount_shouldReturn404_whenAccountNotFound() throws Exception {
+        when(accountService.delete("ACC000001"))
+                .thenThrow(new AccountNotFound("Account Not Found: ACC000001"));
+
+        mockMvc.perform(delete("/accounts/{accountNumber}" , "ACC000001"))
+                .andExpect(status().isNotFound());
+
+        verify(accountService)
+                .delete("ACC000001");
+    }
+
 
 
 
